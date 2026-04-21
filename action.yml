@@ -1,0 +1,66 @@
+name: Ogoron Run
+description: Run generated or project tests with Ogoron on Linux runners.
+author: OgoronAI
+branding:
+  icon: play
+  color: green
+
+inputs:
+  unit-tests:
+    description: Run ogoron unit/project tests.
+    required: false
+    default: "true"
+  ui-tests:
+    description: Run generated UI tests when they are available.
+    required: false
+    default: "true"
+  project:
+    description: Run project tests from config.paths.tests instead of generated Ogoron unit test batches.
+    required: false
+    default: "false"
+  ui-target:
+    description: Optional path inside .ogoron/tests/tests/ui/generated for ui-tests mode.
+    required: false
+    default: ""
+  working-directory:
+    description: Repository directory where commands should run.
+    required: false
+    default: .
+  cli-version:
+    description: Ogoron CLI release version to download.
+    required: false
+    default: 5.2.0
+  download-url:
+    description: Explicit Linux bundle URL override.
+    required: false
+
+outputs:
+  ogoron-bin:
+    description: Absolute path to the downloaded Ogoron executable.
+    value: ${{ steps.install.outputs.ogoron-bin }}
+
+runs:
+  using: composite
+  steps:
+    - id: install
+      name: Install Ogoron
+      shell: bash
+      run: "${{ github.action_path }}/scripts/install-ogoron.sh"
+      env:
+        INPUT_CLI_VERSION: ${{ inputs.cli-version }}
+        INPUT_DOWNLOAD_URL: ${{ inputs.download-url }}
+
+    - id: run
+      name: Run tests
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: "${{ github.action_path }}/scripts/run-tests.sh"
+      env:
+        OGORON_BIN: ${{ steps.install.outputs.ogoron-bin }}
+        INPUT_UNIT_TESTS: ${{ inputs.unit-tests }}
+        INPUT_UI_TESTS: ${{ inputs.ui-tests }}
+        INPUT_PROJECT: ${{ inputs.project }}
+        INPUT_UI_TARGET: ${{ inputs.ui-target }}
+        OGORON_PLAIN: "1"
+        NO_COLOR: "1"
+        CI: "1"
