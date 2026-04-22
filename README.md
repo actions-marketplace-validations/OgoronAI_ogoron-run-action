@@ -36,3 +36,17 @@ Provide secrets via workflow `env`, not action inputs.
 - If generated unit tests do not exist yet, the unit test phase is treated as a skip instead of a failure.
 - If generated UI tests do not exist yet, the UI test phase is treated as a skip instead of a failure.
 - This action does not prepare the UI workspace or cache `.ogoron/tests/.venv` for you. Keep that logic in the surrounding workflow.
+
+## Related actions
+
+- [`Ogoron Setup`](https://github.com/OgoronAI/ogoron-setup-action) to bootstrap the repository before CI usage
+- [`Ogoron Generate`](https://github.com/OgoronAI/ogoron-generate-action) to create artifacts that `run` will execute
+- [`Ogoron Heal`](https://github.com/OgoronAI/ogoron-heal-action) to repair failing generated or project tests
+- [`Ogoron Exec`](https://github.com/OgoronAI/ogoron-exec-action) for custom execution workflows
+
+## Recommended flow
+
+1. Run `setup` once and merge the bootstrap PR.
+2. Use `generate` to create or refresh test artifacts.
+3. Use `run` in CI for routine execution.
+4. If failures require repository changes, use `heal`.
